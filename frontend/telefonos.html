@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShieldAuth — Validación Telefónica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root {
+            --glass: rgba(255,255,255,0.05);
+            --glass-border: rgba(255,255,255,0.09);
+            --text: #f0eaff;
+            --text-muted: #9a8ab8;
+            --accent: #ff2d95;
+            --accent-hover: #ff6bb5;
+            --radius: 18px;
+            --radius-sm: 10px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(255,45,149,0.18), transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(179,136,255,0.15), transparent 60%),
+                radial-gradient(ellipse at 50% 90%, rgba(0,255,240,0.08), transparent 60%),
+                #0d0a1a;
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        .orb {
+            position: fixed; border-radius: 50%; filter: blur(100px);
+            pointer-events: none; z-index: 0;
+            animation: orbFloat 25s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 600px; height: 600px; background: rgba(255,45,149,0.15); top: -200px; left: -150px; }
+        .orb-2 { width: 450px; height: 450px; background: rgba(0,255,240,0.10); bottom: -150px; right: -100px; animation-delay: -8s; }
+        .orb-3 { width: 350px; height: 350px; background: rgba(179,136,255,0.12); top: 40%; right: 15%; animation-delay: -15s; }
+        @keyframes orbFloat {
+            0% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(40px,-30px) scale(1.05); }
+            66% { transform: translate(-20px,40px) scale(0.95); }
+            100% { transform: translate(30px,20px) scale(1.02); }
+        }
+
+        .navbar-glass {
+            position: relative; z-index: 2;
+            background: rgba(13, 10, 26, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 14px 0;
+        }
+        .navbar-glass .navbar-brand {
+            font-weight: 800; font-size: 1.15rem; color: #fff !important; letter-spacing: -0.3px;
+        }
+        .navbar-glass .navbar-brand i { color: var(--accent); margin-right: 8px; filter: drop-shadow(0 0 10px rgba(255,45,149,0.4)); }
+        .navbar-glass .nav-link { color: var(--text-muted) !important; font-weight: 500; transition: color 0.2s; }
+        .navbar-glass .nav-link:hover { color: #fff !important; }
+        .navbar-glass .nav-link.active { color: #fff !important; }
+
+        .main-container {
+            position: relative; z-index: 1;
+            padding: 40px 20px;
+            max-width: 800px; margin: 0 auto;
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            padding: 28px 28px;
+            margin-bottom: 24px;
+            animation: cardIn 0.5s ease-out both;
+        }
+        .glass-card:nth-child(2) { animation-delay: 0.1s; }
+        .glass-card:nth-child(3) { animation-delay: 0.2s; }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-title {
+            font-weight: 700; font-size: 1rem; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .card-title i { font-size: 1.2rem; color: var(--accent); }
+
+        .form-glass {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: var(--radius-sm);
+            padding: 11px 15px;
+            color: #fff;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .form-glass:focus {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,45,149,0.2);
+            color: #fff;
+            outline: none;
+        }
+        .form-glass::placeholder { color: rgba(255,255,255,0.25); }
+        select.form-glass option { background: #1a1d3e; color: #fff; }
+        .form-label-glass {
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; display: block;
+        }
+
+        .btn-glass {
+            background: var(--accent);
+            border: none; color: #fff;
+            padding: 10px 22px; border-radius: var(--radius-sm);
+            font-weight: 600; font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .btn-glass:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,45,149,0.35); }
+        .btn-glass-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-primary);
+            padding: 9px 18px; border-radius: var(--radius-sm);
+            font-weight: 500; font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        .btn-glass-outline:hover { background: rgba(255,255,255,0.06); }
+        .btn-glass-success { background: #00e676; }
+        .btn-glass-success:hover { background: #69f0ae; box-shadow: 0 8px 20px rgba(0,230,118,0.3); }
+        .btn-glass-info { background: rgba(179,136,255,0.2); color: #d1c4e9; border: 1px solid rgba(179,136,255,0.15); }
+        .btn-glass-info:hover { background: rgba(179,136,255,0.3); }
+
+        .glass-pre {
+            background: rgba(0,0,0,0.3) !important;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            color: #e0e0f0 !important;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.82rem;
+            padding: 16px;
+            min-height: 80px;
+        }
+
+        .token-status { font-size: 0.85rem; font-weight: 500; }
+
+        .spinner-glass {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        @media (max-width: 600px) {
+            .main-container { padding: 20px 12px; }
+            .glass-card { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <nav class="navbar navbar-expand navbar-glass">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock-fill"></i> ShieldAuth
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="/telefonos"><i class="bi bi-telephone me-1"></i>Validar</a>
+                <a class="nav-link" href="/"><i class="bi bi-box-arrow-in-right me-1"></i>Inicio</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+
+        <!-- Token -->
+        <div class="glass-card">
+            <div class="card-title">
+                <i class="bi bi-key-fill"></i> Autenticación
+            </div>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label-glass">Token de acceso</label>
+                    <input type="text" class="form-glass" id="token-input" placeholder="Ingresa tu token">
+                </div>
+                <div class="col-md-4">
+                    <button class="btn-glass w-100" id="btn-validar-token">
+                        <i class="bi bi-check-lg me-1"></i> Validar
+                    </button>
+                </div>
+            </div>
+            <div id="token-status" class="token-status mt-3" style="min-height:20px;"></div>
+        </div>
+
+        <!-- Verificar -->
+        <div class="glass-card">
+            <div class="card-title">
+                <i class="bi bi-telephone-outbound-fill"></i> Verificar Número
+            </div>
+            <div class="row g-3 align-items-end mb-3">
+                <div class="col-md-5">
+                    <label class="form-label-glass">Número telefónico</label>
+                    <input type="text" class="form-glass" id="telefono-input" placeholder="521234567890" maxlength="15">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label-glass">API (opcional)</label>
+                    <select class="form-glass form-select" id="api-select">
+                        <option value="auto">Auto (probar todas)</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn-glass btn-glass-success w-100" id="btn-verificar">
+                        <i class="bi bi-search me-1"></i> Verificar
+                    </button>
+                </div>
+            </div>
+            <div id="loading-spinner" class="d-none" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                <div class="spinner-glass"></div>
+                <span style="color:var(--text-muted);font-size:0.85rem;">Consultando...</span>
+            </div>
+            <pre id="resultado-content" class="glass-pre">Esperando consulta...</pre>
+        </div>
+
+        <!-- Catálogo local -->
+        <div class="glass-card">
+            <div class="card-title">
+                <i class="bi bi-database-fill"></i> Catálogo Local (México)
+            </div>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label-glass">Número a buscar</label>
+                    <input type="text" class="form-glass" id="local-telefono" placeholder="521234567890">
+                </div>
+                <div class="col-md-4">
+                    <button class="btn-glass btn-glass-info w-100" id="btn-buscar-local">
+                        <i class="bi bi-search me-1"></i> Buscar
+                    </button>
+                </div>
+            </div>
+            <pre id="local-resultado" class="glass-pre mt-3">Esperando consulta...</pre>
+        </div>
+
+    </div>
+
+    <script>
+        let tokenValido = false;
+        let tokenActual = "";
+
+        document.getElementById('btn-validar-token').addEventListener('click', function() {
+            const token = document.getElementById('token-input').value.trim();
+            const statusEl = document.getElementById('token-status');
+            if (!token) {
+                statusEl.innerHTML = '<span style="color:#fab1a0;">Ingresa un token</span>';
+                return;
+            }
+            tokenActual = token;
+            tokenValido = true;
+            statusEl.innerHTML = '<span style="color:#55efc4;font-weight:600;"><i class="bi bi-check-circle-fill me-1"></i>Token validado</span>';
+            cargarAPIs();
+        });
+
+        async function cargarAPIs() {
+            try {
+                const resp = await fetch('/telefonos/apis_activas', {
+                    headers: { 'Authorization': tokenActual }
+                });
+                const apis = await resp.json();
+                const select = document.getElementById('api-select');
+                select.innerHTML = '<option value="auto">Auto (probar todas)</option>';
+                apis.forEach(nombre => {
+                    const opt = document.createElement('option');
+                    opt.value = nombre;
+                    opt.textContent = nombre;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                console.log('Error cargando APIs:', e);
+            }
+        }
+
+        document.getElementById('btn-verificar').addEventListener('click', async function() {
+            if (!tokenValido) {
+                document.getElementById('resultado-content').textContent = 'Primero valida tu token de acceso.';
+                return;
+            }
+            const numero = document.getElementById('telefono-input').value.trim();
+            if (!numero) {
+                document.getElementById('resultado-content').textContent = 'Ingresa un número telefónico.';
+                return;
+            }
+            const api = document.getElementById('api-select').value;
+
+            document.getElementById('loading-spinner').classList.remove('d-none');
+            const pre = document.getElementById('resultado-content');
+            pre.textContent = 'Consultando...';
+
+            try {
+                const url = api === 'auto'
+                    ? `/telefonos/Verificar/${numero}`
+                    : `/telefonos/Verificar/${numero}?api=${encodeURIComponent(api)}`;
+
+                const resp = await fetch(url, {
+                    headers: { 'Authorization': tokenActual }
+                });
+                pre.textContent = JSON.stringify(await resp.json(), null, 2);
+            } catch (e) {
+                pre.textContent = 'Error de conexión: ' + e.message;
+            } finally {
+                document.getElementById('loading-spinner').classList.add('d-none');
+            }
+        });
+
+        document.getElementById('btn-buscar-local').addEventListener('click', async function() {
+            if (!tokenValido) {
+                document.getElementById('local-resultado').textContent = 'Primero valida tu token de acceso.';
+                return;
+            }
+            const telefono = document.getElementById('local-telefono').value.trim();
+            if (!telefono) {
+                document.getElementById('local-resultado').textContent = 'Ingresa un número.';
+                return;
+            }
+
+            const pre = document.getElementById('local-resultado');
+            pre.textContent = 'Buscando...';
+
+            try {
+                const resp = await fetch('/telefonos/telefono', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': tokenActual
+                    },
+                    body: JSON.stringify({ telefono })
+                });
+                pre.textContent = JSON.stringify(await resp.json(), null, 2);
+            } catch (e) {
+                pre.textContent = 'Error de conexión: ' + e.message;
+            }
+        });
+    </script>
+</body>
+</html>

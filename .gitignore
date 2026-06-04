@@ -205,3 +205,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Local database
+dev.db
+
+# Session files
+session-*.md
+
+# Agent skills / local cache
+.agents/
+skills-lock.json

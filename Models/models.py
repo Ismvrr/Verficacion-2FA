@@ -16,8 +16,8 @@ class Tokens (SQLModel, table = True):
       id : int | None = Field(default = None, primary_key = True)
       token : str = Field (unique = True, index = True)
       activo: bool = Field(default = True)
-      usuario_id: int | None = Field (default = None, foreign_key = "usuarios.id")
-      creado_por_id: int | None = Field(default = None, foreign_key="usuarios.id")
+      usuario_id: int | None = Field (default = None, foreign_key = "tb_users.id")
+      creado_por_id: int | None = Field(default = None, foreign_key="tb_users.id")
 
 class ProveedoresAPI(SQLModel, table = True):
       id: int | None = Field(default = None, primary_key = True)
@@ -54,18 +54,23 @@ class Solicitud(BaseModel):
     telefono: str = Field(min_length=12, max_length=15)
 
 class Usuarios(SQLModel, table=True):
+    __tablename__ = "tb_users"
     id: int | None = Field(default=None, primary_key=True)
     username: str = Field(unique=True, index=True)
     password: str 
-    rol: str = Field(default="usuario")
     email: str = Field(default="usuario@ejemplo.com") 
-    otp_length: int = Field(default=6)
-    otp_type: str = Field(default="numeric") 
+    rol: str = Field(default="usuario")
+    two_factor_enabled: bool = Field(default=True)
+    two_factor_length: int = Field(default=6)
+    two_factor_method: int = Field(default=2)
+    two_factor_type: int = Field(default=1)
 
 class TwoFactorCodes(SQLModel, table=True):
+    __tablename__ = "tb_two_factor_codes"
     id: int | None = Field(default=None, primary_key=True)
-    usuario_id: int = Field(foreign_key="usuarios.id", index=True)
-    hashed_code: str
+    user_id: int = Field(foreign_key="tb_users.id", index=True)
+    code_hash: str
+    code_destinator: str | None = Field(default=None)
     is_used: bool = Field(default=False)
     attempts: int = Field(default=0)
     expires_at: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(minutes=5))

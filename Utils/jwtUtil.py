@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 def create_access_token(usuario_id: int) -> str:
     # Se obtiene la llave secreta del .env
-    jwt_secret = os.getenv("jwtSecret", "tu_clave_secreta_por_defecto") 
+    jwt_secret = os.getenv("JWT_SECRET", os.getenv("jwtSecret", "tu_clave_secreta_por_defecto"))
     
     payload = {
         "sub": str(usuario_id),

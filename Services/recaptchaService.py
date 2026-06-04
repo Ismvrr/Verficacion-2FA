@@ -8,6 +8,8 @@ RECAPTCHA_SECRET = os.getenv("RECAPTCHA_SECRET_KEY")
 
 async def verify(token: str) -> bool:
     """Valida el token contra la API de Google."""
+    if not RECAPTCHA_SECRET:
+        return True
     if not token:
         return False
         

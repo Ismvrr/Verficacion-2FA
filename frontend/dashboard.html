@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — 2FA & Validación Telefónica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.10);
+            --glass-hover: rgba(255, 255, 255, 0.12);
+            --glass-strong: rgba(255, 255, 255, 0.12);
+            --text-primary: #f0eaff;
+            --text-muted: #9a8ab8;
+            --accent: #ff2d95;
+            --accent-hover: #ff6bb5;
+            --accent-green: #00e676;
+            --accent-red: #ff1744;
+            --accent-violet: #b388ff;
+            --sidebar-w: 240px;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font);
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(255,45,149,0.18), transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(179,136,255,0.15), transparent 60%),
+                radial-gradient(ellipse at 50% 90%, rgba(0,255,240,0.08), transparent 60%),
+                #0d0a1a;
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        /* Floating Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 25s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 600px; height: 600px; background: rgba(255,45,149,0.15); top: -200px; left: -200px; }
+        .orb-2 { width: 500px; height: 500px; background: rgba(0,255,240,0.10); bottom: -150px; right: -150px; animation-delay: -6s; }
+        .orb-3 { width: 400px; height: 400px; background: rgba(179,136,255,0.12); top: 40%; right: 10%; animation-delay: -12s; }
+        @keyframes orbFloat {
+            0% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(40px,-30px) scale(1.05); }
+            66% { transform: translate(-20px,40px) scale(0.95); }
+            100% { transform: translate(30px,20px) scale(1.02); }
+        }
+
+        .hidden { display: none !important; }
+        .app-view { animation: fadeSlide 0.45s ease-out; }
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glass Base */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .glass-sm {
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+        }
+        .glass-strong {
+            background: var(--glass-strong);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: var(--radius);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+            background: rgba(13, 10, 26, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid rgba(255,255,255,0.06);
+            z-index: 1040;
+            display: flex; flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-brand {
+            padding: 24px 20px 20px;
+            font-size: 1.15rem; font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .sidebar-brand i { color: var(--accent); margin-right: 10px; filter: drop-shadow(0 0 12px rgba(255,45,149,0.4)); }
+        .sidebar-nav { flex: 1; padding: 12px 12px; overflow-y: auto; }
+        .sidebar-nav .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px; margin-bottom: 3px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem; font-weight: 500;
+            text-decoration: none;
+            border: 1px solid transparent;
+        }
+        .sidebar-nav .nav-item i { font-size: 1.15rem; width: 22px; text-align: center; }
+        .sidebar-nav .nav-item:hover {
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .sidebar-nav .nav-item.active {
+            background: rgba(255,45,149,0.18);
+            border-color: rgba(255,45,149,0.25);
+            color: #fff;
+        }
+        .sidebar-nav .nav-item.admin-only.hidden { display: none; }
+        .sidebar-footer {
+            padding: 16px 16px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .sidebar-footer .user-info {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.04);
+            font-size: 0.85rem;
+        }
+        .sidebar-footer .user-info .avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: linear-gradient(135deg, #ff2d95, #b388ff);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.85rem; color: #fff;
+            flex-shrink: 0;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            min-height: 100vh;
+            position: relative; z-index: 1;
+            padding: 28px 32px;
+        }
+        .page-header {
+            margin-bottom: 28px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .page-header h1 {
+            font-size: 1.5rem; font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .page-header p { color: var(--text-muted); font-size: 0.9rem; margin: 4px 0 0; }
+
+        /* Cards */
+        .card-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .card-glass-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-weight: 600; font-size: 1rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .card-glass-body { padding: 24px; }
+        .card-glass-body.no-pad { padding: 0; }
+
+        /* Form elements */
+        .form-glass {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: var(--radius-sm);
+            color: #fff;
+            padding: 11px 15px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .form-glass:focus {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,45,149,0.2);
+            color: #fff;
+            outline: none;
+        }
+        .form-glass::placeholder { color: rgba(255,255,255,0.3); }
+        select.form-glass option { background: #1a1d3e; color: #fff; }
+        .form-label-glass {
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; display: block;
+        }
+
+        /* Buttons */
+        .btn-glass {
+            background: var(--accent);
+            border: none; color: #fff;
+            padding: 10px 22px; border-radius: var(--radius-sm);
+            font-weight: 600; font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .btn-glass:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,45,149,0.35); }
+        .btn-glass-outline {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-primary);
+            padding: 9px 18px; border-radius: var(--radius-sm);
+            font-weight: 500; font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        .btn-glass-outline:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.25);
+        }
+        .btn-glass-success { background: var(--accent-green); }
+        .btn-glass-success:hover { background: #00e676; box-shadow: 0 8px 20px rgba(0,230,118,0.3); }
+        .btn-glass-danger { background: var(--accent-red); }
+        .btn-glass-danger:hover { background: #ff1744; box-shadow: 0 8px 20px rgba(255,23,68,0.3); }
+        .btn-glass-sm { padding: 6px 14px; font-size: 0.8rem; border-radius: 8px; }
+
+        /* Tables */
+        .table-glass {
+            width: 100%; border-collapse: collapse;
+        }
+        .table-glass thead th {
+            padding: 14px 20px;
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-muted);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+        }
+        .table-glass tbody td {
+            padding: 13px 20px;
+            font-size: 0.88rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: #ddd;
+        }
+        .table-glass tbody tr:hover { background: rgba(255,255,255,0.03); }
+        .table-glass tbody tr:last-child td { border-bottom: none; }
+
+        /* Badges */
+        .badge-glass {
+            padding: 4px 11px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .badge-glass-success { background: rgba(0,230,118,0.18); color: #69f0ae; }
+        .badge-glass-danger { background: rgba(255,23,68,0.18); color: #ff8a80; }
+        .badge-glass-info { background: rgba(179,136,255,0.18); color: #d1c4e9; }
+        .badge-glass-warning { background: rgba(255,215,64,0.18); color: #ffe082; }
+        .badge-glass-secondary { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+
+        /* Token text */
+        .token-text { font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 0.82em; }
+
+        /* Login Overlay */
+        #login-section {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(255,45,149,0.2), transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(179,136,255,0.16), transparent 60%),
+                radial-gradient(ellipse at 50% 90%, rgba(0,255,240,0.08), transparent 60%),
+                #0d0a1a;
+        }
+        #login-section .orb { z-index: 0; }
+        .login-card {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 400px; padding: 40px 36px 44px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 20px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+        }
+        .login-card .brand {
+            text-align: center; margin-bottom: 28px;
+        }
+        .login-card .brand i {
+            font-size: 2.2rem; color: var(--accent);
+            background: rgba(255,45,149,0.15);
+            padding: 14px; border-radius: 16px;
+        }
+        .login-card .brand h2 { font-size: 1.3rem; font-weight: 700; margin-top: 14px; }
+        .login-card .brand p { color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0; }
+        .login-card .form-group { margin-bottom: 18px; }
+        .login-card label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px; }
+        .login-card .form-glass { width: 100%; }
+        .login-card .btn-glass { width: 100%; margin-top: 6px; }
+        .login-card .mensaje-error {
+            color: #fab1a0; font-size: 0.85rem; text-align: center;
+            background: rgba(225,112,85,0.12); padding: 10px; border-radius: var(--radius-sm);
+            margin-bottom: 16px;
+        }
+
+        /* Pre / Code */
+        pre.glass-pre {
+            background: rgba(0,0,0,0.3) !important;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            color: #e0e0f0 !important;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.82rem;
+            padding: 16px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* Modal glass */
+        .modal-glass .modal-content {
+            background: rgba(13, 10, 26, 0.92);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        .modal-glass .modal-header {
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 20px 24px 16px;
+        }
+        .modal-glass .modal-header .modal-title { color: #fff; font-weight: 700; }
+        .modal-glass .modal-header .btn-close { filter: invert(1) brightness(0.8); }
+        .modal-glass .modal-body { padding: 20px 24px; }
+        .modal-glass .modal-footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 16px 24px 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .sidebar-toggle { display: flex !important; }
+        }
+        .sidebar-toggle {
+            display: none;
+            position: fixed; top: 16px; left: 16px; z-index: 1050;
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 10px;
+            color: #fff;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        .sidebar-backdrop {
+            position: fixed; inset: 0; z-index: 1035;
+            background: rgba(0,0,0,0.5);
+            display: none;
+        }
+        .sidebar-backdrop.show { display: block; }
+
+        /* OTP switch */
+        .form-switch-glass .form-check-input {
+            width: 44px; height: 22px;
+            background-color: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.15);
+            cursor: pointer;
+        }
+        .form-switch-glass .form-check-input:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(255,45,149,0.3);
+        }
+
+        /* Selector API */
+        .input-group-glass .form-glass:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+        .input-group-glass .form-glass:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+
+        /* Animación de entrada para cards */
+        .card-glass { animation: cardIn 0.5s ease-out both; }
+        .card-glass:nth-child(2) { animation-delay: 0.08s; }
+        .card-glass:nth-child(3) { animation-delay: 0.16s; }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Overlay for mobile sidebar -->
+    <div class="sidebar-backdrop hidden" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+    <!-- Mobile toggle -->
+    <div class="sidebar-toggle hidden" id="sidebarToggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </div>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar hidden" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-shield-lock-fill"></i> ShieldAuth
+        </div>
+        <div class="sidebar-nav">
+            <a class="nav-item active" href="#" onclick="cambiarPagina('view-telefonos', event)">
+                <i class="bi bi-telephone-outbound-fill"></i> Verificador
+            </a>
+            <a class="nav-item" href="#" onclick="cambiarPagina('view-historial', event)">
+                <i class="bi bi-clock-history"></i> Historial
+            </a>
+            <a class="nav-item" href="#" onclick="cambiarPagina('view-otp', event)">
+                <i class="bi bi-shield-check"></i> Conf. OTP
+            </a>
+            <a class="nav-item admin-only hidden" href="#" onclick="cambiarPagina('view-bd', event)">
+                <i class="bi bi-database-fill"></i> BD Local
+            </a>
+            <a class="nav-item admin-only hidden" href="#" onclick="cambiarPagina('view-usuarios', event)">
+                <i class="bi bi-people-fill"></i> Usuarios
+            </a>
+            <a class="nav-item admin-only hidden" href="#" onclick="cambiarPagina('view-tokens', event)">
+                <i class="bi bi-key-fill"></i> Tokens
+            </a>
+            <a class="nav-item admin-only hidden" href="#" onclick="cambiarPagina('view-apis', event)">
+                <i class="bi bi-cloud-fill"></i> APIs
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="avatar" id="nav-avatar">U</div>
+                <div>
+                    <div style="font-weight:600; font-size:0.88rem;" id="nav-username">Usuario</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);" id="nav-role">Cargando...</div>
+                </div>
+                <div style="margin-left:auto;">
+                    <button onclick="logout()" class="btn btn-glass-outline btn-glass-sm" title="Cerrar sesión">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- === LOGIN OVERLAY === -->
+    <div id="login-section">
+        <div class="orb orb-1" style="position:absolute;"></div>
+        <div class="orb orb-2" style="position:absolute;"></div>
+        <div class="login-card">
+            <div class="brand">
+                <i class="bi bi-shield-lock-fill"></i>
+                <h2>Acceso al Sistema</h2>
+                <p>Ingresa con tu usuario y contraseña</p>
+            </div>
+            <div id="login-error" class="mensaje-error hidden"></div>
+
+            <div id="login-step-1">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Usuario</label>
+                        <input type="text" id="username" class="form-glass" placeholder="Ingresa tu usuario" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" class="form-glass" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn-glass">Iniciar Sesión</button>
+                </form>
+            </div>
+
+            <div id="login-step-2" class="hidden">
+                <p class="text-muted small mb-3 text-center" style="color:var(--text-muted) !important;">
+                    Ingresa el código de verificación enviado a tu correo.
+                </p>
+                <form id="otp-form">
+                    <div class="form-group">
+                        <label for="otp-code">Código OTP</label>
+                        <input type="text" id="otp-code" class="form-glass" placeholder="000000" required maxlength="10" autocomplete="off" style="text-align:center;font-size:1.3rem;letter-spacing:6px;font-weight:700;">
+                    </div>
+                    <div id="otp-hint" class="text-muted small mb-2 text-center" style="color:var(--text-muted) !important;"></div>
+                    <button type="submit" class="btn-glass">Verificar y Entrar</button>
+                </form>
+                <div class="text-center mt-3">
+                    <button onclick="volverAlLogin()" class="btn btn-glass-outline btn-glass-sm">Volver</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- VIEW: VERIFICADOR -->
+        <div id="view-telefonos" class="app-view hidden">
+            <div class="page-header">
+                <div>
+                    <h1><i class="bi bi-telephone-outbound-fill" style="color:var(--accent);margin-right:10px;"></i>Verificador Telefónico</h1>
+                    <p>Consulta información de números telefónicos vía API externa o catálogo local.</p>
+                </div>
+            </div>
+            <div class="card-glass">
+                <div class="card-glass-header">
+                    <span><i class="bi bi-search me-2"></i>Consultar Número</span>
+                </div>
+                <div class="card-glass-body">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label-glass">API</label>
+                            <select id="api-selector" class="form-glass form-select"></select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label-glass">Número telefónico</label>
+                            <input type="text" id="phone-input" class="form-glass" maxlength="15" placeholder="525512345678">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button onclick="verificarTelefono()" class="btn-glass w-100">
+                                <i class="bi bi-search me-1"></i> Consultar
+                            </button>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button onclick="document.getElementById('phone-input').value='';document.getElementById('phone-result').classList.add('hidden');" class="btn-glass-outline w-100">
+                                <i class="bi bi-x-lg"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                    <pre id="phone-result" class="glass-pre hidden" style="min-height:100px;"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: HISTORIAL -->
+        <div id="view-historial" class="app-view hidden">
+            <div class="page-header">
+                <div>
+                    <h1><i class="bi bi-clock-history" style="color:var(--accent);margin-right:10px;"></i>Historial de Consultas</h1>
+                    <p>Registro de todas las verificaciones realizadas.</p>
+                </div>
+                <button onclick="cargarHistorial()" class="btn-glass-outline btn-glass-sm">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                </button>
+            </div>
+            <div class="card-glass">
+                <div class="card-glass-body no-pad">
+                    <div class="table-responsive">
+                        <table class="table-glass">
+                            <thead>
+                                <tr><th>ID</th><th>Número</th><th>País</th><th>Tipo</th><th>Compañía</th><th>API</th></tr>
+                            </thead>
+                            <tbody id="historial-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: CONFIG OTP -->
+        <div id="view-otp" class="app-view hidden">
+            <div class="page-header">
+                <div>
+                    <h1><i class="bi bi-shield-check" style="color:var(--accent);margin-right:10px;"></i>Configuración OTP</h1>
+                    <p>Ajusta los parámetros de verificación en dos pasos.</p>
+                </div>
+            </div>
+            <div class="card-glass">
+                <div class="card-glass-header">
+                    <span><i class="bi bi-gear me-2"></i>Parámetros de autenticación</span>
+                </div>
+                <div class="card-glass-body">
+                    <form id="otp-config-form">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label-glass">Longitud del código</label>
+                                <select id="otp-length" class="form-glass form-select">
+                                    <option value="4">4 dígitos</option>
+                                    <option value="5">5 dígitos</option>
+                                    <option value="6" selected>6 dígitos</option>
+                                    <option value="8">8 dígitos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-glass">Tipo de código</label>
+                                <select id="otp-type" class="form-glass form-select">
+                                    <option value="1">Numérico</option>
+                                    <option value="2">Alfanumérico</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-glass">Método de envío</label>
+                                <select id="otp-method" class="form-glass form-select">
+                                    <option value="1">SMS</option>
+                                    <option value="2">Email</option>
+                                    <option value="3">Ambos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-4 mb-4">
+                            <div class="form-check form-switch form-switch-glass">
+                                <input class="form-check-input" type="checkbox" id="otp-enabled" checked>
+                                <label class="form-check-label fw-bold ms-2" for="otp-enabled" style="font-size:0.9rem;">2FA habilitado</label>
+                            </div>
+                            <button type="submit" class="btn-glass">
+                                <i class="bi bi-check-lg me-1"></i> Guardar Configuración
+                            </button>
+                            <span id="otp-status" class="small"></span>
+                        </div>
+                    </form>
+                    <pre id="otp-result" class="glass-pre hidden" style="min-height:60px;"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: BD LOCAL -->
+        <div id="view-bd" class="app-view hidden">
+            <div class="page-header">
+                <div>
+                    <h1><i class="bi bi-database-fill" style="color:var(--accent);margin-right:10px;"></i>Base de Datos Local</h1>
+                    <p>Catálogo de numeraciones telefónicas de México.</p>
+                </div>
+            </div>
+            <div class="card-glass">
+                <div class="card-glass-header">
+                    <span><i class="bi bi-upload me-2"></i>Cargar registros CSV</span>
+                </div>
+                <div class="card-glass-body">
+                    <p class="small" style="color:var(--text-muted);">Archivo CSV con campos: zona, numeracion_inicial, numeracion_final, ocupacion, modalidad, razon_social, fecha_asignacion.</p>
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <input type="file" id="archivo_csv" class="form-glass" accept=".csv" style="padding:10px 15px;">
+                        </div>
+                        <div class="col-md-3">
+                            <button onclick="subirCSV()" class="btn-glass w-100">
+                                <i class="bi bi-cloud-upload me-1"></i> Subir e Insertar
+                            </button>
+                        </div>
+                    </div>
+                    <p id="csv_mensaje" class="mt-3 fw-bold small"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: USUARIOS -->
+        <div id="view-usuarios" class="app-view hidden">
+            <div class="page-header">
+                <div>
+                    <h1><i class="bi bi-people-fill" style="color:var(--accent);margin-right:10px;"></i>Gestión de Usuarios</h1>
+                    <p>Administra cuentas y roles del sistema.</p>
+                </div>
+                <button onclick="cargarUsuarios()" class="btn-glass-outline btn-glass-sm">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                </button>
+            </div>
+            <div class="card-glass mb-4">
+                <div class="card-glass-header">
+                    <span><i class="bi bi-person-plus me-2"></i>Crear nuevo usuario</span>
+                </div>
+                <div class="card-glass-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label-glass">Usuario</label>
+                            <input type="text" id="new-username" class="form-glass" placeholder="ej: jperez">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-glass">Contraseña</label>
+                            <input type="password" id="new-password" class="form-glass" placeholder="••••••">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label-glass">Rol</label>
+                            <select id="new-rol" class="form-glass form-select">
+                                <option value="usuario">Estándar</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button onclick="crearUsuario()" class="btn-glass w-100">
+                                <i class="bi bi-plus-lg me-1"></i> Crear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-glass">
+                <div class="card-glass-body no-pad">
+                    <div class="table-responsive">
+                        <table class="table-glass">
+                            <thead><tr><th>ID</th><th>Usuario</th><th>Rol</th><th>Acciones</th></tr></thead>
+                            <tbody id="users-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: TOKENS -->
+        <div id="view-tokens" class="app-view hidden">
+            <div class="page-header">
+                <div>
+                    <h1><i class="bi bi-key-fill" style="color:var(--accent);margin-right:10px;"></i>Tokens de Acceso</h1>
+                    <p>Administra los tokens de autenticación del sistema.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button onclick="generarToken()" class="btn-glass btn-glass-sm">
+                        <i class="bi bi-plus-lg me-1"></i> Generar Token
+                    </button>
+                    <button onclick="cargarTokens()" class="btn-glass-outline btn-glass-sm">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+            <div class="card-glass">
+                <div class="card-glass-body no-pad">
+                    <div class="table-responsive">
+                        <table class="table-glass">
+                            <thead><tr><th>ID</th><th>Token</th><th>Propietario</th><th>Creado por</th><th>Estado</th><th>Acciones</th></tr></thead>
+                            <tbody id="tokens-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: APIs -->
+        <div id="view-apis" class="app-view hidden">
+            <div class="page-header">
+                <div>
+                    <h1><i class="bi bi-cloud-fill" style="color:var(--accent);margin-right:10px;"></i>Proveedores API</h1>
+                    <p>Gestiona las APIs externas de verificación telefónica.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn-glass btn-glass-sm" data-bs-toggle="modal" data-bs-target="#modalCrearApi">
+                        <i class="bi bi-plus-lg me-1"></i> Agregar
+                    </button>
+                    <button onclick="cargarApis()" class="btn-glass-outline btn-glass-sm">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+            <div class="card-glass">
+                <div class="card-glass-body no-pad">
+                    <div class="table-responsive">
+                        <table class="table-glass">
+                            <thead><tr><th>ID</th><th>Nombre</th><th>URL Base</th><th>Estado</th><th>Acciones</th></tr></thead>
+                            <tbody id="apis-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Crear API -->
+    <div class="modal fade modal-glass" id="modalCrearApi" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-cloud-plus me-2"></i>Registrar Proveedor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-crear-api">
+                        <h6 class="fw-bold mb-3 small text-uppercase" style="color:var(--text-muted);letter-spacing:0.5px;">Conexión</h6>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label-glass">Nombre</label>
+                                <input type="text" id="api-nombre" class="form-glass w-100" required>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label-glass">URL Base</label>
+                                <input type="text" id="api-url" class="form-glass w-100" required>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label-glass">API Key</label>
+                                <input type="text" id="api-key" class="form-glass w-100" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label-glass">Parámetro Número</label>
+                                <input type="text" id="api-param-num" class="form-glass w-100" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label-glass">Parámetro Key</label>
+                                <input type="text" id="api-param-key" class="form-glass w-100" required>
+                            </div>
+                        </div>
+                        <h6 class="fw-bold mb-3 small text-uppercase pt-3" style="color:var(--text-muted);letter-spacing:0.5px;border-top:1px solid rgba(255,255,255,0.06);">Mapeo de Respuesta (JSON)</h6>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label-glass">Validación</label>
+                                <input type="text" id="api-map-valid" class="form-glass w-100" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-glass">Número</label>
+                                <input type="text" id="api-map-num" class="form-glass w-100" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-glass">País</label>
+                                <input type="text" id="api-map-pais" class="form-glass w-100" required>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label-glass">Tipo de Línea</label>
+                                <input type="text" id="api-map-tipo" class="form-glass w-100" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-glass">Valor Celular</label>
+                                <input type="text" id="api-map-celular" class="form-glass w-100" required>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label-glass">Código País</label>
+                                <input type="text" id="api-map-codigo" class="form-glass w-100" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-glass">Compañía</label>
+                                <input type="text" id="api-map-compania" class="form-glass w-100" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-glass-outline" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-glass" onclick="crearApi()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Editar API -->
+    <div class="modal fade modal-glass" id="modalEditarApi" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Proveedor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-api-id">
+                    <h6 class="fw-bold mb-3 small text-uppercase" style="color:var(--text-muted);letter-spacing:0.5px;">Conexión</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><label class="form-label-glass">Nombre</label><input type="text" id="edit-api-nombre" class="form-glass w-100" required></div>
+                        <div class="col-md-8"><label class="form-label-glass">URL Base</label><input type="text" id="edit-api-url" class="form-glass w-100" required></div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6"><label class="form-label-glass">API Key</label><input type="text" id="edit-api-key" class="form-glass w-100" required></div>
+                        <div class="col-md-3"><label class="form-label-glass">Parámetro Número</label><input type="text" id="edit-api-param-num" class="form-glass w-100" required></div>
+                        <div class="col-md-3"><label class="form-label-glass">Parámetro Key</label><input type="text" id="edit-api-param-key" class="form-glass w-100" required></div>
+                    </div>
+                    <h6 class="fw-bold mb-3 small text-uppercase pt-3" style="color:var(--text-muted);letter-spacing:0.5px;border-top:1px solid rgba(255,255,255,0.06);">Mapeo de Respuesta (JSON)</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><label class="form-label-glass">Validación</label><input type="text" id="edit-api-map-valid" class="form-glass w-100" required></div>
+                        <div class="col-md-4"><label class="form-label-glass">Número</label><input type="text" id="edit-api-map-num" class="form-glass w-100" required></div>
+                        <div class="col-md-4"><label class="form-label-glass">País</label><input type="text" id="edit-api-map-pais" class="form-glass w-100" required></div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6"><label class="form-label-glass">Tipo de Línea</label><input type="text" id="edit-api-map-tipo" class="form-glass w-100" required></div>
+                        <div class="col-md-6"><label class="form-label-glass">Valor Celular</label><input type="text" id="edit-api-map-celular" class="form-glass w-100" required></div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="form-label-glass">Código País</label><input type="text" id="edit-api-map-codigo" class="form-glass w-100" required></div>
+                        <div class="col-md-6"><label class="form-label-glass">Compañía</label><input type="text" id="edit-api-map-compania" class="form-glass w-100" required></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-glass-outline" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-glass" onclick="guardarEdicionApi()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Editar Usuario -->
+    <div class="modal fade modal-glass" id="modalEditarUsuario" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-user-id">
+                    <div class="mb-3">
+                        <label class="form-label-glass">Usuario</label>
+                        <input type="text" id="edit-username" class="form-glass w-100" disabled style="opacity:0.5;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-glass">Rol</label>
+                        <select id="edit-rol" class="form-glass form-select w-100">
+                            <option value="usuario">Estándar</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-glass">Nueva Contraseña</label>
+                        <input type="password" id="edit-password" class="form-glass w-100" placeholder="Dejar en blanco para mantener">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-glass-outline" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-glass" onclick="guardarEdicionUsuario()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let miToken = localStorage.getItem("token");
+        let modalEdicion, modalApi, modalEditarApi;
+        let listaApisGlobal = [];
+        let loginUserId = null;
+
+        window.onload = () => {
+            modalEdicion = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
+            modalApi = new bootstrap.Modal(document.getElementById('modalCrearApi'));
+            modalEditarApi = new bootstrap.Modal(document.getElementById('modalEditarApi'));
+            if (miToken) iniciarSesionExitosa();
+        };
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarBackdrop').classList.toggle('show');
+        }
+
+        function cambiarPagina(idPagina, event) {
+            document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById(idPagina).classList.remove('hidden');
+            document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
+            if (event && event.target) {
+                const target = event.target.closest('.nav-item');
+                if (target) target.classList.add('active');
+            }
+            if (window.innerWidth <= 768) { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarBackdrop').classList.remove('show'); }
+            if (idPagina === 'view-usuarios') cargarUsuarios();
+            if (idPagina === 'view-tokens') cargarTokens();
+            if (idPagina === 'view-apis') cargarApis();
+            if (idPagina === 'view-historial') cargarHistorial();
+            if (idPagina === 'view-otp') cargarConfigOTP();
+        }
+
+        // ===== LOGIN =====
+        document.getElementById("login-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const user = document.getElementById("username").value;
+            const pass = document.getElementById("password").value;
+            const errorBox = document.getElementById("login-error");
+            errorBox.classList.add("hidden");
+            try {
+                const response = await fetch(`/auth/login?username=${user}&password=${pass}`, { method: 'POST' });
+                const data = await response.json();
+                if (data.errorCode === 0 && data.status === "2FA_REQUIRED") {
+                    loginUserId = data.user_id;
+                    document.getElementById("login-step-1").classList.add("hidden");
+                    document.getElementById("login-step-2").classList.remove("hidden");
+                    document.querySelector(".login-card .brand p").innerText = "Verificación en dos pasos";
+                    const hint = data.destinator_hint || "";
+                    document.getElementById("otp-hint").innerHTML = `Código enviado a: <strong>${hint}</strong>`;
+                    if (data.dev_otp) {
+                        document.getElementById("otp-hint").innerHTML += `<br><span style="color:#fdcb6e;font-weight:700;">DEV: ${data.dev_otp}</span>`;
+                    }
+                    document.getElementById("otp-code").focus();
+                } else if (data.errorCode === 0 && data.token) {
+                    miToken = data.token;
+                    localStorage.setItem("token", miToken);
+                    localStorage.setItem("username", document.getElementById("username").value);
+                    iniciarSesionExitosa();
+                } else {
+                    errorBox.innerText = data.errorMessage || data.detail || "Credenciales incorrectas";
+                    errorBox.classList.remove("hidden");
+                }
+            } catch (error) {
+                errorBox.innerText = "Error crítico de conexión con el servidor.";
+                errorBox.classList.remove("hidden");
+            }
+        });
+
+        document.getElementById("otp-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const code = document.getElementById("otp-code").value.trim();
+            const errorBox = document.getElementById("login-error");
+            errorBox.classList.add("hidden");
+            if (!code || !loginUserId) return;
+            try {
+                const response = await fetch(`/auth/verify-and-enter`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: loginUserId, otp_code: code })
+                });
+                const data = await response.json();
+                if (data.errorCode === 0 && data.token) {
+                    miToken = data.token;
+                    localStorage.setItem("token", miToken);
+                    localStorage.setItem("username", document.getElementById("username").value);
+                    iniciarSesionExitosa();
+                } else {
+                    errorBox.innerText = data.errorMessage || "Código incorrecto";
+                    errorBox.classList.remove("hidden");
+                }
+            } catch (error) {
+                errorBox.innerText = "Error crítico de conexión.";
+                errorBox.classList.remove("hidden");
+            }
+        });
+
+        function volverAlLogin() {
+            loginUserId = null;
+            document.getElementById("login-step-2").classList.add("hidden");
+            document.getElementById("login-step-1").classList.remove("hidden");
+            document.querySelector(".login-card .brand p").innerText = "Ingresa con tu usuario y contraseña";
+            document.getElementById("login-error").classList.add("hidden");
+        }
+
+        async function iniciarSesionExitosa() {
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("sidebar").classList.remove("hidden");
+            document.getElementById("sidebarToggle").classList.remove("hidden");
+            document.getElementById("sidebarBackdrop").classList.remove("hidden");
+            document.getElementById("nav-username").innerText = localStorage.getItem("username") || "Usuario";
+            const avatar = document.getElementById("nav-avatar");
+            const name = localStorage.getItem("username") || "U";
+            avatar.innerText = name.charAt(0).toUpperCase();
+            try {
+                const response = await fetch(`/auth/admin/usuarios`, { headers: { 'Authorization': miToken } });
+                if (response.ok) {
+                    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                    document.getElementById('nav-role').innerText = 'Administrador';
+                } else {
+                    document.getElementById('nav-role').innerText = 'Usuario estándar';
+                }
+            } catch (e) { document.getElementById('nav-role').innerText = 'Usuario'; }
+            cambiarPagina('view-telefonos');
+            cargarDropdownApis();
+        }
+
+        function logout() { localStorage.clear(); location.reload(); }
+
+        // ===== VERIFICADOR =====
+        async function cargarDropdownApis() {
+            try {
+                const response = await fetch(`/telefonos/apis_activas`, { headers: { 'Authorization': miToken } });
+                if (response.ok) {
+                    const nombresApis = await response.json();
+                    const selector = document.getElementById("api-selector");
+                    selector.innerHTML = '<option value="auto">Global (Automático)</option>';
+                    selector.innerHTML += '<option value="local">API Mexico</option>';
+                    nombresApis.forEach(nombre => { selector.innerHTML += `<option value="${nombre}">${nombre}</option>`; });
+                }
+            } catch (error) { console.error("Error al cargar APIs"); }
+        }
+
+        async function verificarTelefono() {
+            let numero = document.getElementById("phone-input").value.trim();
+            const apiElegida = document.getElementById("api-selector").value;
+            const resultBox = document.getElementById("phone-result");
+            if (!numero) return;
+            if (numero.startsWith("+")) numero = numero.substring(1);
+            resultBox.innerText = "Consultando..."; resultBox.classList.remove("hidden");
+            try {
+                let data = null; let isSuccess = false;
+                if (apiElegida === "auto") {
+                    if (numero.startsWith("52")) {
+                        const resLocal = await fetch(`/telefonos/telefono`, {
+                            method: 'POST', headers: { 'Authorization': miToken, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ telefono: numero })
+                        });
+                        const dataLocal = await resLocal.json();
+                        if (resLocal.ok && dataLocal.data && dataLocal.data.statuscode === "01") { data = dataLocal; isSuccess = true; }
+                    }
+                    if (!isSuccess) {
+                        const resAuto = await fetch(`/telefonos/Verificar/${numero}?api=auto`, { method: 'POST', headers: { 'Authorization': miToken } });
+                        data = await resAuto.json(); isSuccess = resAuto.ok;
+                    }
+                } else if (apiElegida === "local") {
+                    const resLocal = await fetch(`/telefonos/telefono`, {
+                        method: 'POST', headers: { 'Authorization': miToken, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ telefono: numero })
+                    });
+                    data = await resLocal.json(); isSuccess = resLocal.ok;
+                } else {
+                    const resApi = await fetch(`/telefonos/Verificar/${numero}?api=${apiElegida}`, { method: 'POST', headers: { 'Authorization': miToken } });
+                    data = await resApi.json(); isSuccess = resApi.ok;
+                }
+                resultBox.innerText = isSuccess ? JSON.stringify(data, null, 4) : `Error:\n${JSON.stringify(data.detail || data, null, 2)}`;
+            } catch (error) { resultBox.innerText = "Error crítico de conexión."; }
+        }
+
+        // ===== CSV =====
+        async function subirCSV() {
+            let input = document.getElementById('archivo_csv');
+            if (!input.files[0]) return alert("Selecciona un archivo CSV");
+            let formData = new FormData(); formData.append("file", input.files[0]);
+            let msj = document.getElementById("csv_mensaje"); msj.innerText = "Subiendo..."; msj.style.color = "var(--text-muted)";
+            try {
+                let res = await fetch(`/auth/admin/actualizar-bd`, { method: "POST", headers: { "Authorization": miToken }, body: formData });
+                let data = await res.json();
+                if (res.ok) { msj.innerText = "Éxito: " + data.mensaje; msj.style.color = "#55efc4"; input.value = ""; }
+                else { msj.innerText = "Error: " + data.detail; msj.style.color = "#fab1a0"; }
+            } catch(e) { msj.innerText = "Error de conexión."; msj.style.color = "#fab1a0"; }
+        }
+
+        // ===== HISTORIAL =====
+        async function cargarHistorial() {
+            try {
+                const response = await fetch(`/telefonos/`, { headers: { 'Authorization': miToken } });
+                if (response.ok) {
+                    const data = await response.json();
+                    const tbody = document.getElementById("historial-table-body"); tbody.innerHTML = "";
+                    data.forEach(tel => {
+                        tbody.innerHTML += `<tr>
+                            <td style="color:var(--text-muted);font-size:0.8rem;">${tel.id}</td>
+                            <td class="fw-bold">${tel.numero}</td>
+                            <td>${tel.pais} <span style="color:var(--text-muted);font-size:0.75rem;">(${tel.codigo_pais})</span></td>
+                            <td><span class="badge-glass ${tel.tipo === 'Celular' || tel.tipo === 'Móvil' ? 'badge-glass-success' : 'badge-glass-info'}">${tel.tipo}</span></td>
+                            <td>${tel.compañia}</td>
+                            <td><span class="badge-glass badge-glass-secondary">${tel.api_Utilizada}</span></td>
+                        </tr>`;
+                    });
+                }
+            } catch (error) { console.error("Error al cargar historial"); }
+        }
+
+        // ===== CONFIG OTP =====
+        async function cargarConfigOTP() {
+            try {
+                const response = await fetch(`/auth/user/config-dashboard`, { headers: { 'Authorization': miToken } });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.errorCode === 0 && data.config) {
+                        document.getElementById('otp-length').value = data.config.two_factor_length;
+                        document.getElementById('otp-type').value = data.config.two_factor_type;
+                        document.getElementById('otp-method').value = data.config.two_factor_method;
+                        document.getElementById('otp-enabled').checked = data.config.two_factor_enabled !== false;
+                    }
+                }
+            } catch (error) { console.error("Error al cargar config OTP"); }
+        }
+
+        document.getElementById("otp-config-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const config = {
+                two_factor_length: parseInt(document.getElementById('otp-length').value),
+                two_factor_type: parseInt(document.getElementById('otp-type').value),
+                two_factor_method: parseInt(document.getElementById('otp-method').value),
+                two_factor_enabled: document.getElementById('otp-enabled').checked
+            };
+            const status = document.getElementById('otp-status');
+            const result = document.getElementById('otp-result');
+            status.innerHTML = '<span style="color:var(--accent);">Guardando...</span>';
+            try {
+                const resp = await fetch(`/auth/user/config-dashboard`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': miToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                const data = await resp.json();
+                if (data.errorCode === 0) {
+                    status.innerHTML = '<span style="color:#55efc4;font-weight:600;">Configuración guardada ✓</span>';
+                    result.classList.remove('hidden'); result.innerText = JSON.stringify(data, null, 4);
+                } else {
+                    status.innerHTML = '<span style="color:#fab1a0;">Error: ' + (data.errorMessage || 'desconocido') + '</span>';
+                }
+            } catch (error) {
+                status.innerHTML = '<span style="color:#fab1a0;">Error de conexión</span>';
+            }
+            setTimeout(() => { status.innerHTML = ''; }, 3000);
+        });
+
+        // ===== USUARIOS =====
+        async function cargarUsuarios() {
+            const response = await fetch(`/auth/admin/usuarios`, { headers: { 'Authorization': miToken } });
+            if (response.ok) {
+                const data = await response.json(); const tbody = document.getElementById("users-table-body"); tbody.innerHTML = "";
+                data.Usuarios.forEach(u => {
+                    const badgeRol = u.rol === 'admin' ? 'badge-glass-info' : 'badge-glass-secondary';
+                    tbody.innerHTML += `<tr>
+                        <td style="color:var(--text-muted);font-size:0.8rem;">${u.id}</td>
+                        <td class="fw-bold">${u.username}</td>
+                        <td><span class="badge-glass ${badgeRol}">${u.rol}</span></td>
+                        <td>
+                            <button onclick="abrirModalEdicion(${u.id}, '${u.username}', '${u.rol}')" class="btn btn-glass-outline btn-glass-sm me-1">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button onclick="eliminarUsuario(${u.id})" class="btn btn-glass-danger btn-glass-sm">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+            }
+        }
+
+        async function crearUsuario() {
+            const user = document.getElementById("new-username").value; const pass = document.getElementById("new-password").value; const rol = document.getElementById("new-rol").value;
+            if (!user || !pass) return;
+            const response = await fetch(`/auth/admin/usuarios?username=${user}&password=${pass}&rol=${rol}`, { method: 'POST', headers: { 'Authorization': miToken } });
+            if (response.ok) { document.getElementById("new-username").value = ""; document.getElementById("new-password").value = ""; cargarUsuarios(); }
+            else { const err = await response.json(); alert(err.detail); }
+        }
+
+        function abrirModalEdicion(id, username, rol) {
+            document.getElementById("edit-user-id").value = id; document.getElementById("edit-username").value = username; document.getElementById("edit-rol").value = rol; document.getElementById("edit-password").value = "";
+            modalEdicion.show();
+        }
+
+        async function guardarEdicionUsuario() {
+            const id = document.getElementById("edit-user-id").value; const nuevoRol = document.getElementById("edit-rol").value; const nuevaPass = document.getElementById("edit-password").value;
+            let url = `/auth/admin/usuarios/${id}?nuevo_rol=${nuevoRol}`; if (nuevaPass) url += `&nueva_password=${nuevaPass}`;
+            const response = await fetch(url, { method: 'PUT', headers: { 'Authorization': miToken } });
+            if (response.ok) { modalEdicion.hide(); cargarUsuarios(); }
+        }
+
+        async function eliminarUsuario(id) {
+            if (!confirm("¿Borrar permanentemente? Los tokens asignados también serán eliminados.")) return;
+            try {
+                const response = await fetch(`/auth/admin/usuarios/${id}`, { method: 'DELETE', headers: { 'Authorization': miToken } });
+                if (response.ok) { cargarUsuarios(); cargarTokens(); } else { const err = await response.json(); alert("Error: " + (err.detail || "Desconocido")); }
+            } catch (error) { alert("Error de conexión."); }
+        }
+
+        // ===== TOKENS =====
+        async function cargarTokens() {
+            let mapaUsuarios = {};
+            try {
+                const resUsuarios = await fetch(`/auth/admin/usuarios`, { headers: { 'Authorization': miToken } });
+                if (resUsuarios.ok) { const dataUsuarios = await resUsuarios.json(); dataUsuarios.Usuarios.forEach(u => { mapaUsuarios[u.id] = u.username; }); }
+            } catch(e) { console.error("Error", e); }
+
+            const response = await fetch(`/auth/admin/tokens`, { headers: { 'Authorization': miToken } });
+            if (response.ok) {
+                const data = await response.json(); const tbody = document.getElementById("tokens-table-body"); tbody.innerHTML = "";
+                data.Lista_Tokens.forEach(t => {
+                    const badgeActivo = t.activo ? '<span class="badge-glass badge-glass-success">Activo</span>' : '<span class="badge-glass badge-glass-danger">Inactivo</span>';
+                    let btnEstado = t.token === miToken
+                        ? `<button class="btn btn-glass-outline btn-glass-sm" disabled style="opacity:0.4;">En uso</button>`
+                        : (t.activo
+                            ? `<button onclick="cambiarEstadoToken('${t.token}', false)" class="btn btn-glass-outline btn-glass-sm">Desactivar</button>`
+                            : `<button onclick="cambiarEstadoToken('${t.token}', true)" class="btn btn-glass-outline btn-glass-sm">Activar</button>`);
+                    const propietario = t.usuario_id_asignado ? (mapaUsuarios[t.usuario_id_asignado] || `ID: ${t.usuario_id_asignado}`) : '<span style="color:var(--text-muted);font-style:italic;">Sin asignar</span>';
+                    const creador = t.creado_por_admin_id ? (mapaUsuarios[t.creado_por_admin_id] || `ID: ${t.creado_por_admin_id}`) : 'Sistema';
+                    const btnLigar = t.usuario_id_asignado ? '' : `<button onclick="ligarToken('${t.token}')" class="btn btn-glass-outline btn-glass-sm me-1"><i class="bi bi-link-45deg"></i></button>`;
+                    tbody.innerHTML += `<tr>
+                        <td style="color:var(--text-muted);font-size:0.8rem;">${t.id}</td>
+                        <td><span class="token-text" style="background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);">${t.token}</span></td>
+                        <td class="fw-bold">${propietario}</td>
+                        <td style="color:var(--text-muted);font-size:0.85rem;">${creador}</td>
+                        <td>${badgeActivo}</td>
+                        <td><div class="d-flex gap-1">${btnLigar}${btnEstado}</div></td>
+                    </tr>`;
+                });
+            }
+        }
+
+        async function generarToken() {
+            const response = await fetch(`/auth/admin/generar-token`, { method: 'POST', headers: { 'Authorization': miToken } });
+            if (response.ok) cargarTokens();
+        }
+
+        async function ligarToken(tokenStr) {
+            const usuarioId = prompt("ID de usuario al que pertenece:"); if (!usuarioId) return;
+            const response = await fetch(`/auth/admin/ligar-token?token=${tokenStr}&usuario_id=${usuarioId}`, { method: 'PUT', headers: { 'Authorization': miToken } });
+            if (response.ok) cargarTokens(); else alert("Error al vincular.");
+        }
+
+        async function cambiarEstadoToken(tokenStr, activar) {
+            const response = await fetch(`/auth/admin/estado-token?token=${tokenStr}&activar=${activar}`, { method: 'PUT', headers: { 'Authorization': miToken } });
+            if (response.ok) cargarTokens();
+        }
+
+        // ===== APIs =====
+        async function cargarApis() {
+            const response = await fetch(`/auth/admin/apis`, { headers: { 'Authorization': miToken } });
+            if (response.ok) {
+                const data = await response.json(); listaApisGlobal = data.apis;
+                const tbody = document.getElementById("apis-table-body"); tbody.innerHTML = "";
+                data.apis.forEach(api => {
+                    const badgeActivo = api.activa ? '<span class="badge-glass badge-glass-success">Operativa</span>' : '<span class="badge-glass badge-glass-secondary">Inactiva</span>';
+                    const btnEstado = api.activa
+                        ? `<button onclick="cambiarEstadoApi(${api.id}, false)" class="btn btn-glass-outline btn-glass-sm">Desactivar</button>`
+                        : `<button onclick="cambiarEstadoApi(${api.id}, true)" class="btn btn-glass-outline btn-glass-sm">Activar</button>`;
+                    tbody.innerHTML += `<tr>
+                        <td style="color:var(--text-muted);font-size:0.8rem;">${api.id}</td>
+                        <td class="fw-bold">${api.nombre}</td>
+                        <td style="color:var(--text-muted);font-size:0.85rem;">${api.url_base}</td>
+                        <td>${badgeActivo}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button onclick="abrirModalEdicionApi(${api.id})" class="btn btn-glass-outline btn-glass-sm"><i class="bi bi-pencil"></i></button>
+                                ${btnEstado}
+                                <button onclick="eliminarApi(${api.id})" class="btn btn-glass-danger btn-glass-sm"><i class="bi bi-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+            }
+        }
+
+        async function crearApi() {
+            const nuevaApi = {
+                nombre: document.getElementById("api-nombre").value, url_base: document.getElementById("api-url").value, api_key: document.getElementById("api-key").value, activa: true,
+                parametro_num: document.getElementById("api-param-num").value, parametro_key: document.getElementById("api-param-key").value,
+                llave_validacion: document.getElementById("api-map-valid").value, llave_numero: document.getElementById("api-map-num").value, llave_pais: document.getElementById("api-map-pais").value,
+                llave_tipo: document.getElementById("api-map-tipo").value, valor_celular: document.getElementById("api-map-celular").value, llave_codigo: document.getElementById("api-map-codigo").value, llave_company: document.getElementById("api-map-compania").value
+            };
+            const response = await fetch(`/auth/admin/apis`, { method: 'POST', headers: { 'Authorization': miToken, 'Content-Type': 'application/json' }, body: JSON.stringify(nuevaApi) });
+            if (response.ok) { modalApi.hide(); document.getElementById("form-crear-api").reset(); cargarApis(); cargarDropdownApis(); }
+        }
+
+        function abrirModalEdicionApi(id) {
+            const api = listaApisGlobal.find(a => a.id === id); if (!api) return;
+            document.getElementById("edit-api-id").value = api.id; document.getElementById("edit-api-nombre").value = api.nombre; document.getElementById("edit-api-url").value = api.url_base;
+            document.getElementById("edit-api-key").value = api.api_key; document.getElementById("edit-api-param-num").value = api.parametro_num; document.getElementById("edit-api-param-key").value = api.parametro_key;
+            document.getElementById("edit-api-map-valid").value = api.llave_validacion; document.getElementById("edit-api-map-num").value = api.llave_numero; document.getElementById("edit-api-map-pais").value = api.llave_pais;
+            document.getElementById("edit-api-map-tipo").value = api.llave_tipo; document.getElementById("edit-api-map-celular").value = api.valor_celular; document.getElementById("edit-api-map-codigo").value = api.llave_codigo;
+            document.getElementById("edit-api-map-compania").value = api.llave_company; modalEditarApi.show();
+        }
+
+        async function guardarEdicionApi() {
+            const id = document.getElementById("edit-api-id").value;
+            const apiActualizada = {
+                nombre: document.getElementById("edit-api-nombre").value, url_base: document.getElementById("edit-api-url").value, api_key: document.getElementById("edit-api-key").value, activa: true,
+                parametro_num: document.getElementById("edit-api-param-num").value, parametro_key: document.getElementById("edit-api-param-key").value,
+                llave_validacion: document.getElementById("edit-api-map-valid").value, llave_numero: document.getElementById("edit-api-map-num").value, llave_pais: document.getElementById("edit-api-map-pais").value,
+                llave_tipo: document.getElementById("edit-api-map-tipo").value, valor_celular: document.getElementById("edit-api-map-celular").value, llave_codigo: document.getElementById("edit-api-map-codigo").value, llave_company: document.getElementById("edit-api-map-compania").value
+            };
+            const response = await fetch(`/auth/admin/apis/${id}`, { method: 'PUT', headers: { 'Authorization': miToken, 'Content-Type': 'application/json' }, body: JSON.stringify(apiActualizada) });
+            if (response.ok) { modalEditarApi.hide(); cargarApis(); cargarDropdownApis(); } else { alert("Error al actualizar."); }
+        }
+
+        async function cambiarEstadoApi(id, activar) {
+            const response = await fetch(`/auth/admin/apis/${id}/estado?activar=${activar}`, { method: 'PUT', headers: { 'Authorization': miToken } });
+            if (response.ok) { cargarApis(); cargarDropdownApis(); }
+        }
+
+        async function eliminarApi(id) {
+            if (!confirm("¿Eliminar proveedor permanentemente?")) return;
+            const response = await fetch(`/auth/admin/apis/${id}`, { method: 'DELETE', headers: { 'Authorization': miToken } });
+            if (response.ok) { cargarApis(); cargarDropdownApis(); }
+        }
+    </script>
+</body>
+</html>

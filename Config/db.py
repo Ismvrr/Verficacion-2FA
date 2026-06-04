@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("No se encontró DATABASE_URL en el archivo .env")
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 
 def get_Session() -> Generator[SessionType, None, None]: 
     with Session(engine) as session:
