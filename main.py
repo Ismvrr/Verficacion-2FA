@@ -5,7 +5,6 @@ import Models
 from Routers import auth, telefono, admin
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title = "2FA + Verificacion de Telefonos")
 
@@ -26,5 +25,9 @@ async def paginaWeb():
 @app.get("/telefonos", tags = ["Frontend"])
 async def paginaTelefonos():
     return FileResponse("frontend/telefonos.html")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 

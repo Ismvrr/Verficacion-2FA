@@ -102,6 +102,9 @@ venv\Scripts\activate
 # Dependencias
 pip install -r requirements.txt
 
+# Crear archivo de variables de entorno (editar con tus valores)
+copy .env.example .env
+
 # Ejecutar
 python main.py
 ```
@@ -111,9 +114,9 @@ Servidor en `http://localhost:8000`
 ### Variables de entorno (.env)
 
 ```
-SECRET_KEY=...
+SECRET_KEY=clave-secreta-para-jwt
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
-RECAPTCHA_SECRET_KEY=...
-RECAPTCHA_SITE_KEY=...
+RECAPTCHA_SECRET_KEY=tu-secret-key-de-recaptcha
+RECAPTCHA_SITE_KEY=tu-site-key-de-recaptcha
 ```
