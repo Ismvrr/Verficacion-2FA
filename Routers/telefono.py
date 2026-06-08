@@ -4,6 +4,7 @@ from sqlmodel import Session, select
 from Config.db import SessionDep, get_Session
 from Models.models import Telefonos, Usuarios, ProveedoresAPI,Numeraciones, Solicitud
 from .auth import validarToken
+from Services.phoneValidationService import validate_phone_local
 import httpx
 
 router = APIRouter(prefix="/telefonos", tags=["Validacion"])
@@ -83,7 +84,10 @@ async def verificar_numero(numero: str, api: str = Query("auto"), session: Sessi
         else:
             raise HTTPException(status_code=404, detail=f"La API '{api}' no está registrada o está apagada.")
 
-    # CASO 02: Si ninguna API activa lo encontró
+    # CASO 02: Si ninguna API activa lo encontró, intentar validación local
+    if not datos_tel:
+        datos_tel = validate_phone_local(numero)
+
     if not datos_tel:
         return {
             "status": "success",

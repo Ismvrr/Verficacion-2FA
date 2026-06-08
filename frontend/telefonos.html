@@ -9,12 +9,12 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         :root {
-            --glass: rgba(255,255,255,0.05);
-            --glass-border: rgba(255,255,255,0.09);
-            --text: #f0eaff;
-            --text-muted: #9a8ab8;
-            --accent: #ff2d95;
-            --accent-hover: #ff6bb5;
+            --glass: rgba(255,255,255,0.7);
+            --glass-border: rgba(59,130,246,0.12);
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
             --radius: 18px;
             --radius-sm: 10px;
         }
@@ -22,10 +22,10 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background:
-                radial-gradient(ellipse at 20% 20%, rgba(255,45,149,0.18), transparent 60%),
-                radial-gradient(ellipse at 80% 30%, rgba(179,136,255,0.15), transparent 60%),
-                radial-gradient(ellipse at 50% 90%, rgba(0,255,240,0.08), transparent 60%),
-                #0d0a1a;
+                radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.08), transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(99,102,241,0.06), transparent 60%),
+                radial-gradient(ellipse at 50% 90%, rgba(59,130,246,0.04), transparent 60%),
+                #f0f5ff;
             min-height: 100vh;
             color: var(--text);
         }
@@ -35,9 +35,9 @@
             pointer-events: none; z-index: 0;
             animation: orbFloat 25s ease-in-out infinite alternate;
         }
-        .orb-1 { width: 600px; height: 600px; background: rgba(255,45,149,0.15); top: -200px; left: -150px; }
-        .orb-2 { width: 450px; height: 450px; background: rgba(0,255,240,0.10); bottom: -150px; right: -100px; animation-delay: -8s; }
-        .orb-3 { width: 350px; height: 350px; background: rgba(179,136,255,0.12); top: 40%; right: 15%; animation-delay: -15s; }
+        .orb-1 { width: 600px; height: 600px; background: rgba(59,130,246,0.06); top: -200px; left: -150px; }
+        .orb-2 { width: 450px; height: 450px; background: rgba(99,102,241,0.05); bottom: -150px; right: -100px; animation-delay: -8s; }
+        .orb-3 { width: 350px; height: 350px; background: rgba(59,130,246,0.04); top: 40%; right: 15%; animation-delay: -15s; }
         @keyframes orbFloat {
             0% { transform: translate(0,0) scale(1); }
             33% { transform: translate(40px,-30px) scale(1.05); }
@@ -47,19 +47,19 @@
 
         .navbar-glass {
             position: relative; z-index: 2;
-            background: rgba(13, 10, 26, 0.8);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
             padding: 14px 0;
         }
         .navbar-glass .navbar-brand {
-            font-weight: 800; font-size: 1.15rem; color: #fff !important; letter-spacing: -0.3px;
+            font-weight: 800; font-size: 1.15rem; color: var(--text) !important; letter-spacing: -0.3px;
         }
-        .navbar-glass .navbar-brand i { color: var(--accent); margin-right: 8px; filter: drop-shadow(0 0 10px rgba(255,45,149,0.4)); }
+        .navbar-glass .navbar-brand i { color: var(--accent); margin-right: 8px; filter: drop-shadow(0 0 10px rgba(59,130,246,0.4)); }
         .navbar-glass .nav-link { color: var(--text-muted) !important; font-weight: 500; transition: color 0.2s; }
-        .navbar-glass .nav-link:hover { color: #fff !important; }
-        .navbar-glass .nav-link.active { color: #fff !important; }
+        .navbar-glass .nav-link:hover { color: var(--accent) !important; }
+        .navbar-glass .nav-link.active { color: var(--accent) !important; }
 
         .main-container {
             position: relative; z-index: 1;
@@ -93,23 +93,23 @@
 
         .form-glass {
             width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(59,130,246,0.15);
             border-radius: var(--radius-sm);
             padding: 11px 15px;
-            color: #fff;
+            color: var(--text);
             font-size: 0.9rem;
             transition: all 0.2s;
         }
         .form-glass:focus {
-            background: rgba(255,255,255,0.08);
+            background: #fff;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(255,45,149,0.2);
-            color: #fff;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+            color: var(--text);
             outline: none;
         }
-        .form-glass::placeholder { color: rgba(255,255,255,0.25); }
-        select.form-glass option { background: #1a1d3e; color: #fff; }
+        .form-glass::placeholder { color: rgba(30, 41, 59, 0.35); }
+        select.form-glass option { background: #fff; color: var(--text); }
         .form-label-glass {
             font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
             letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; display: block;
@@ -122,26 +122,26 @@
             font-weight: 600; font-size: 0.9rem;
             transition: all 0.2s ease;
         }
-        .btn-glass:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,45,149,0.35); }
+        .btn-glass:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(59,130,246,0.35); }
         .btn-glass-outline {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.15);
-            color: var(--text-primary);
+            border: 1px solid rgba(59,130,246,0.2);
+            color: var(--text);
             padding: 9px 18px; border-radius: var(--radius-sm);
             font-weight: 500; font-size: 0.85rem;
             transition: all 0.2s ease;
         }
-        .btn-glass-outline:hover { background: rgba(255,255,255,0.06); }
+        .btn-glass-outline:hover { background: rgba(59,130,246,0.06); border-color: var(--accent); }
         .btn-glass-success { background: #00e676; }
         .btn-glass-success:hover { background: #69f0ae; box-shadow: 0 8px 20px rgba(0,230,118,0.3); }
-        .btn-glass-info { background: rgba(179,136,255,0.2); color: #d1c4e9; border: 1px solid rgba(179,136,255,0.15); }
-        .btn-glass-info:hover { background: rgba(179,136,255,0.3); }
+        .btn-glass-info { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.15); }
+        .btn-glass-info:hover { background: rgba(59,130,246,0.3); }
 
         .glass-pre {
-            background: rgba(0,0,0,0.3) !important;
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.5) !important;
+            border: 1px solid rgba(59,130,246,0.1);
             border-radius: var(--radius-sm);
-            color: #e0e0f0 !important;
+            color: var(--text) !important;
             font-family: 'JetBrains Mono', 'Courier New', monospace;
             font-size: 0.82rem;
             padding: 16px;
@@ -152,7 +152,7 @@
 
         .spinner-glass {
             width: 20px; height: 20px;
-            border: 2px solid rgba(255,255,255,0.1);
+            border: 2px solid rgba(59,130,246,0.12);
             border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
@@ -162,7 +162,7 @@
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.15); border-radius: 10px; }
 
         @media (max-width: 600px) {
             .main-container { padding: 20px 12px; }

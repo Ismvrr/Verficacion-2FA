@@ -8,17 +8,17 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.06);
-            --glass-border: rgba(255, 255, 255, 0.10);
-            --glass-hover: rgba(255, 255, 255, 0.12);
-            --glass-strong: rgba(255, 255, 255, 0.12);
-            --text-primary: #f0eaff;
-            --text-muted: #9a8ab8;
-            --accent: #ff2d95;
-            --accent-hover: #ff6bb5;
-            --accent-green: #00e676;
-            --accent-red: #ff1744;
-            --accent-violet: #b388ff;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(59, 130, 246, 0.12);
+            --glass-hover: rgba(255, 255, 255, 0.85);
+            --glass-strong: rgba(255, 255, 255, 0.85);
+            --text-primary: #1e293b;
+            --text-muted: #64748b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-green: #16a34a;
+            --accent-red: #dc2626;
+            --accent-violet: #6366f1;
             --sidebar-w: 240px;
             --radius: 16px;
             --radius-sm: 10px;
@@ -29,10 +29,10 @@
         body {
             font-family: var(--font);
             background:
-                radial-gradient(ellipse at 20% 20%, rgba(255,45,149,0.18), transparent 60%),
-                radial-gradient(ellipse at 80% 30%, rgba(179,136,255,0.15), transparent 60%),
-                radial-gradient(ellipse at 50% 90%, rgba(0,255,240,0.08), transparent 60%),
-                #0d0a1a;
+                radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.08), transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(99,102,241,0.06), transparent 60%),
+                radial-gradient(ellipse at 50% 90%, rgba(59,130,246,0.04), transparent 60%),
+                #f0f5ff;
             min-height: 100vh;
             color: var(--text-primary);
             overflow-x: hidden;
@@ -46,9 +46,9 @@
             z-index: 0;
             animation: orbFloat 25s ease-in-out infinite alternate;
         }
-        .orb-1 { width: 600px; height: 600px; background: rgba(255,45,149,0.15); top: -200px; left: -200px; }
-        .orb-2 { width: 500px; height: 500px; background: rgba(0,255,240,0.10); bottom: -150px; right: -150px; animation-delay: -6s; }
-        .orb-3 { width: 400px; height: 400px; background: rgba(179,136,255,0.12); top: 40%; right: 10%; animation-delay: -12s; }
+        .orb-1 { width: 600px; height: 600px; background: rgba(59,130,246,0.06); top: -200px; left: -200px; }
+        .orb-2 { width: 500px; height: 500px; background: rgba(99,102,241,0.05); bottom: -150px; right: -150px; animation-delay: -6s; }
+        .orb-3 { width: 400px; height: 400px; background: rgba(59,130,246,0.04); top: 40%; right: 10%; animation-delay: -12s; }
         @keyframes orbFloat {
             0% { transform: translate(0,0) scale(1); }
             33% { transform: translate(40px,-30px) scale(1.05); }
@@ -83,17 +83,17 @@
             background: var(--glass-strong);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.15);
+            border: 1px solid rgba(59, 130, 246, 0.15);
             border-radius: var(--radius);
         }
 
         /* Sidebar */
         .sidebar {
             position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
-            background: rgba(13, 10, 26, 0.85);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border-right: 1px solid rgba(255,255,255,0.06);
+            border-right: 1px solid rgba(59, 130, 246, 0.08);
             z-index: 1040;
             display: flex; flex-direction: column;
             transition: transform 0.3s ease;
@@ -102,10 +102,10 @@
             padding: 24px 20px 20px;
             font-size: 1.15rem; font-weight: 800;
             letter-spacing: -0.5px;
-            color: #fff;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
         }
-        .sidebar-brand i { color: var(--accent); margin-right: 10px; filter: drop-shadow(0 0 12px rgba(255,45,149,0.4)); }
+        .sidebar-brand i { color: var(--accent); margin-right: 10px; filter: drop-shadow(0 0 12px rgba(59,130,246,0.4)); }
         .sidebar-nav { flex: 1; padding: 12px 12px; overflow-y: auto; }
         .sidebar-nav .nav-item {
             display: flex; align-items: center; gap: 12px;
@@ -120,29 +120,31 @@
         }
         .sidebar-nav .nav-item i { font-size: 1.15rem; width: 22px; text-align: center; }
         .sidebar-nav .nav-item:hover {
-            background: rgba(255,255,255,0.06);
-            color: #fff;
+            background: rgba(59, 130, 246, 0.08);
+            color: var(--text-primary);
         }
         .sidebar-nav .nav-item.active {
-            background: rgba(255,45,149,0.18);
-            border-color: rgba(255,45,149,0.25);
-            color: #fff;
+            background: rgba(59, 130, 246, 0.12);
+            border-color: rgba(59, 130, 246, 0.25);
+            color: var(--accent);
+            font-weight: 600;
         }
         .sidebar-nav .nav-item.admin-only.hidden { display: none; }
         .sidebar-footer {
             padding: 16px 16px;
-            border-top: 1px solid rgba(255,255,255,0.06);
+            border-top: 1px solid rgba(59, 130, 246, 0.08);
         }
         .sidebar-footer .user-info {
             display: flex; align-items: center; gap: 10px;
             padding: 10px 12px;
             border-radius: var(--radius-sm);
-            background: rgba(255,255,255,0.04);
+            background: rgba(59, 130, 246, 0.05);
             font-size: 0.85rem;
+            color: var(--text-primary);
         }
         .sidebar-footer .user-info .avatar {
             width: 32px; height: 32px; border-radius: 50%;
-            background: linear-gradient(135deg, #ff2d95, #b388ff);
+            background: linear-gradient(135deg, #3b82f6, #818cf8);
             display: flex; align-items: center; justify-content: center;
             font-weight: 700; font-size: 0.85rem; color: #fff;
             flex-shrink: 0;
@@ -178,7 +180,7 @@
         }
         .card-glass-header {
             padding: 18px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
             font-weight: 600; font-size: 1rem;
             display: flex; align-items: center; justify-content: space-between;
         }
@@ -187,23 +189,23 @@
 
         /* Form elements */
         .form-glass {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(59, 130, 246, 0.15);
             border-radius: var(--radius-sm);
-            color: #fff;
+            color: var(--text-primary);
             padding: 11px 15px;
             font-size: 0.9rem;
             transition: all 0.2s;
         }
         .form-glass:focus {
-            background: rgba(255,255,255,0.08);
+            background: #fff;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(255,45,149,0.2);
-            color: #fff;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+            color: var(--text-primary);
             outline: none;
         }
-        .form-glass::placeholder { color: rgba(255,255,255,0.3); }
-        select.form-glass option { background: #1a1d3e; color: #fff; }
+        .form-glass::placeholder { color: rgba(30, 41, 59, 0.35); }
+        select.form-glass option { background: #fff; color: var(--text-primary); }
         .form-label-glass {
             font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
             letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; display: block;
@@ -217,18 +219,18 @@
             font-weight: 600; font-size: 0.9rem;
             transition: all 0.2s ease;
         }
-        .btn-glass:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,45,149,0.35); }
+        .btn-glass:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(59,130,246,0.35); }
         .btn-glass-outline {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.15);
+            border: 1px solid rgba(59, 130, 246, 0.2);
             color: var(--text-primary);
             padding: 9px 18px; border-radius: var(--radius-sm);
             font-weight: 500; font-size: 0.85rem;
             transition: all 0.2s ease;
         }
         .btn-glass-outline:hover {
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(255,255,255,0.25);
+            background: rgba(59, 130, 246, 0.06);
+            border-color: var(--accent);
         }
         .btn-glass-success { background: var(--accent-green); }
         .btn-glass-success:hover { background: #00e676; box-shadow: 0 8px 20px rgba(0,230,118,0.3); }
@@ -244,16 +246,16 @@
             padding: 14px 20px;
             font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
             letter-spacing: 0.5px; color: var(--text-muted);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
+            background: rgba(59, 130, 246, 0.03);
         }
         .table-glass tbody td {
             padding: 13px 20px;
             font-size: 0.88rem;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            color: #ddd;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.04);
+            color: var(--text-primary);
         }
-        .table-glass tbody tr:hover { background: rgba(255,255,255,0.03); }
+        .table-glass tbody tr:hover { background: rgba(59, 130, 246, 0.03); }
         .table-glass tbody tr:last-child td { border-bottom: none; }
 
         /* Badges */
@@ -261,11 +263,11 @@
             padding: 4px 11px; border-radius: 20px;
             font-size: 0.75rem; font-weight: 600;
         }
-        .badge-glass-success { background: rgba(0,230,118,0.18); color: #69f0ae; }
-        .badge-glass-danger { background: rgba(255,23,68,0.18); color: #ff8a80; }
-        .badge-glass-info { background: rgba(179,136,255,0.18); color: #d1c4e9; }
-        .badge-glass-warning { background: rgba(255,215,64,0.18); color: #ffe082; }
-        .badge-glass-secondary { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+        .badge-glass-success { background: rgba(22,163,74,0.1); color: #16a34a; }
+        .badge-glass-danger { background: rgba(220,38,38,0.1); color: #dc2626; }
+        .badge-glass-info { background: rgba(59,130,246,0.1); color: #3b82f6; }
+        .badge-glass-warning { background: rgba(217,119,6,0.1); color: #d97706; }
+        .badge-glass-secondary { background: rgba(100,116,139,0.1); color: var(--text-muted); }
 
         /* Token text */
         .token-text { font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 0.82em; }
@@ -275,48 +277,48 @@
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999;
             display: flex; align-items: center; justify-content: center;
             background:
-                radial-gradient(ellipse at 20% 20%, rgba(255,45,149,0.2), transparent 60%),
-                radial-gradient(ellipse at 80% 30%, rgba(179,136,255,0.16), transparent 60%),
-                radial-gradient(ellipse at 50% 90%, rgba(0,255,240,0.08), transparent 60%),
-                #0d0a1a;
+                radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.08), transparent 60%),
+                radial-gradient(ellipse at 80% 30%, rgba(99,102,241,0.06), transparent 60%),
+                radial-gradient(ellipse at 50% 90%, rgba(59,130,246,0.04), transparent 60%),
+                #f0f5ff;
         }
         #login-section .orb { z-index: 0; }
         .login-card {
             position: relative; z-index: 1;
             width: 100%; max-width: 400px; padding: 40px 36px 44px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.75);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255,255,255,0.10);
+            border: 1px solid rgba(59, 130, 246, 0.15);
             border-radius: 20px;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
         }
         .login-card .brand {
             text-align: center; margin-bottom: 28px;
         }
         .login-card .brand i {
             font-size: 2.2rem; color: var(--accent);
-            background: rgba(255,45,149,0.15);
+            background: rgba(59,130,246,0.1);
             padding: 14px; border-radius: 16px;
         }
-        .login-card .brand h2 { font-size: 1.3rem; font-weight: 700; margin-top: 14px; }
+        .login-card .brand h2 { font-size: 1.3rem; font-weight: 700; margin-top: 14px; color: var(--text-primary); }
         .login-card .brand p { color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0; }
         .login-card .form-group { margin-bottom: 18px; }
         .login-card label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px; }
         .login-card .form-glass { width: 100%; }
         .login-card .btn-glass { width: 100%; margin-top: 6px; }
         .login-card .mensaje-error {
-            color: #fab1a0; font-size: 0.85rem; text-align: center;
-            background: rgba(225,112,85,0.12); padding: 10px; border-radius: var(--radius-sm);
+            color: #b91c1c; font-size: 0.85rem; text-align: center;
+            background: rgba(220,38,38,0.08); padding: 10px; border-radius: var(--radius-sm);
             margin-bottom: 16px;
         }
 
         /* Pre / Code */
         pre.glass-pre {
-            background: rgba(0,0,0,0.3) !important;
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.5) !important;
+            border: 1px solid rgba(59, 130, 246, 0.1);
             border-radius: var(--radius-sm);
-            color: #e0e0f0 !important;
+            color: var(--text-primary) !important;
             font-family: 'JetBrains Mono', 'Courier New', monospace;
             font-size: 0.82rem;
             padding: 16px;
@@ -325,27 +327,27 @@
         /* Scrollbar */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.25); }
 
         /* Modal glass */
         .modal-glass .modal-content {
-            background: rgba(13, 10, 26, 0.92);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(28px);
             -webkit-backdrop-filter: blur(28px);
-            border: 1px solid rgba(255,255,255,0.10);
+            border: 1px solid rgba(59, 130, 246, 0.12);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.08);
         }
         .modal-glass .modal-header {
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
             padding: 20px 24px 16px;
         }
-        .modal-glass .modal-header .modal-title { color: #fff; font-weight: 700; }
-        .modal-glass .modal-header .btn-close { filter: invert(1) brightness(0.8); }
+        .modal-glass .modal-header .modal-title { color: var(--text-primary); font-weight: 700; }
+        .modal-glass .modal-header .btn-close { filter: none; opacity: 0.6; }
         .modal-glass .modal-body { padding: 20px 24px; }
         .modal-glass .modal-footer {
-            border-top: 1px solid rgba(255,255,255,0.06);
+            border-top: 1px solid rgba(59, 130, 246, 0.08);
             padding: 16px 24px 20px;
         }
 
@@ -360,11 +362,11 @@
             display: none;
             position: fixed; top: 16px; left: 16px; z-index: 1050;
             width: 40px; height: 40px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.85);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.10);
+            border: 1px solid rgba(59, 130, 246, 0.15);
             border-radius: 10px;
-            color: #fff;
+            color: var(--text-primary);
             align-items: center; justify-content: center;
             cursor: pointer;
         }
@@ -378,14 +380,14 @@
         /* OTP switch */
         .form-switch-glass .form-check-input {
             width: 44px; height: 22px;
-            background-color: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.15);
+            background-color: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.2);
             cursor: pointer;
         }
         .form-switch-glass .form-check-input:checked {
             background-color: var(--accent);
             border-color: var(--accent);
-            box-shadow: 0 0 8px rgba(255,45,149,0.3);
+            box-shadow: 0 0 8px rgba(59,130,246,0.3);
         }
 
         /* Selector API */
@@ -682,14 +684,20 @@
                             <input type="password" id="new-password" class="form-glass" placeholder="••••••">
                         </div>
                         <div class="col-md-3">
+                            <label class="form-label-glass">Correo Electrónico</label>
+                            <input type="email" id="new-email" class="form-glass" placeholder="ej: correo@ejemplo.com">
+                        </div>
+                        <div class="col-md-3">
                             <label class="form-label-glass">Rol</label>
                             <select id="new-rol" class="form-glass form-select">
                                 <option value="usuario">Estándar</option>
                                 <option value="admin">Administrador</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <button onclick="crearUsuario()" class="btn-glass w-100">
+                    </div>
+                    <div class="row g-3 mt-0">
+                        <div class="col-12">
+                            <button onclick="crearUsuario()" class="btn-glass">
                                 <i class="bi bi-plus-lg me-1"></i> Crear
                             </button>
                         </div>
@@ -700,7 +708,7 @@
                 <div class="card-glass-body no-pad">
                     <div class="table-responsive">
                         <table class="table-glass">
-                            <thead><tr><th>ID</th><th>Usuario</th><th>Rol</th><th>Acciones</th></tr></thead>
+                            <thead><tr><th>ID</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Acciones</th></tr></thead>
                             <tbody id="users-table-body"></tbody>
                         </table>
                     </div>
@@ -800,7 +808,7 @@
                                 <input type="text" id="api-param-key" class="form-glass w-100" required>
                             </div>
                         </div>
-                        <h6 class="fw-bold mb-3 small text-uppercase pt-3" style="color:var(--text-muted);letter-spacing:0.5px;border-top:1px solid rgba(255,255,255,0.06);">Mapeo de Respuesta (JSON)</h6>
+                        <h6 class="fw-bold mb-3 small text-uppercase pt-3" style="color:var(--text-muted);letter-spacing:0.5px;border-top:1px solid rgba(59,130,246,0.08);">Mapeo de Respuesta (JSON)</h6>
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
                                 <label class="form-label-glass">Validación</label>
@@ -865,7 +873,7 @@
                         <div class="col-md-3"><label class="form-label-glass">Parámetro Número</label><input type="text" id="edit-api-param-num" class="form-glass w-100" required></div>
                         <div class="col-md-3"><label class="form-label-glass">Parámetro Key</label><input type="text" id="edit-api-param-key" class="form-glass w-100" required></div>
                     </div>
-                    <h6 class="fw-bold mb-3 small text-uppercase pt-3" style="color:var(--text-muted);letter-spacing:0.5px;border-top:1px solid rgba(255,255,255,0.06);">Mapeo de Respuesta (JSON)</h6>
+                    <h6 class="fw-bold mb-3 small text-uppercase pt-3" style="color:var(--text-muted);letter-spacing:0.5px;border-top:1px solid rgba(59,130,246,0.08);">Mapeo de Respuesta (JSON)</h6>
                     <div class="row g-3 mb-3">
                         <div class="col-md-4"><label class="form-label-glass">Validación</label><input type="text" id="edit-api-map-valid" class="form-glass w-100" required></div>
                         <div class="col-md-4"><label class="form-label-glass">Número</label><input type="text" id="edit-api-map-num" class="form-glass w-100" required></div>
@@ -1194,6 +1202,7 @@
                     tbody.innerHTML += `<tr>
                         <td style="color:var(--text-muted);font-size:0.8rem;">${u.id}</td>
                         <td class="fw-bold">${u.username}</td>
+                        <td style="color:var(--text-muted);">${u.email || '—'}</td>
                         <td><span class="badge-glass ${badgeRol}">${u.rol}</span></td>
                         <td>
                             <button onclick="abrirModalEdicion(${u.id}, '${u.username}', '${u.rol}')" class="btn btn-glass-outline btn-glass-sm me-1">
@@ -1209,9 +1218,9 @@
         }
 
         async function crearUsuario() {
-            const user = document.getElementById("new-username").value; const pass = document.getElementById("new-password").value; const rol = document.getElementById("new-rol").value;
-            if (!user || !pass) return;
-            const response = await fetch(`/auth/admin/usuarios?username=${user}&password=${pass}&rol=${rol}`, { method: 'POST', headers: { 'Authorization': miToken } });
+            const user = document.getElementById("new-username").value; const pass = document.getElementById("new-password").value; const email = document.getElementById("new-email").value; const rol = document.getElementById("new-rol").value;
+            if (!user || !pass || !email) return;
+            const response = await fetch(`/auth/admin/usuarios?username=${user}&password=${pass}&email=${email}&rol=${rol}`, { method: 'POST', headers: { 'Authorization': miToken } });
             if (response.ok) { document.getElementById("new-username").value = ""; document.getElementById("new-password").value = ""; cargarUsuarios(); }
             else { const err = await response.json(); alert(err.detail); }
         }
@@ -1259,7 +1268,7 @@
                     const btnLigar = t.usuario_id_asignado ? '' : `<button onclick="ligarToken('${t.token}')" class="btn btn-glass-outline btn-glass-sm me-1"><i class="bi bi-link-45deg"></i></button>`;
                     tbody.innerHTML += `<tr>
                         <td style="color:var(--text-muted);font-size:0.8rem;">${t.id}</td>
-                        <td><span class="token-text" style="background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);">${t.token}</span></td>
+                        <td><span class="token-text" style="background:rgba(59,130,246,0.04);padding:3px 8px;border-radius:6px;border:1px solid rgba(59,130,246,0.08);">${t.token}</span></td>
                         <td class="fw-bold">${propietario}</td>
                         <td style="color:var(--text-muted);font-size:0.85rem;">${creador}</td>
                         <td>${badgeActivo}</td>
